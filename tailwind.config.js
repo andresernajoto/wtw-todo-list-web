@@ -4,11 +4,7 @@ module.exports = {
     "./src/**/*.{html,ts}",
   ],
   theme: {
-    extend: {
-      colors: {
-        'wtw-violet': '#7f35b2'
-      }
-    },
+    extend: {},
   },
   plugins: [],
 }
