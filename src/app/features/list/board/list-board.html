@@ -1,65 +1,76 @@
 <div class="flex items-center justify-between mb-6">
-
   @if (creatingList || !list) {
-    <input
-      class="text-2xl font-semibold text-gray-700 border-b border-gray-400 outline-none w-full bg-transparent focus:border-purple-600"
-      [(ngModel)]="newListName"
-      (blur)="saveList()"
-      (keydown.enter)="saveList()"
-      type="text"
-      placeholder="Digite o nome da lista..."
-      autofocus
-    />
+  <input
+    class="text-2xl font-semibold text-gray-700 border-b border-gray-400 outline-none w-full bg-transparent focus:border-purple-600"
+    [(ngModel)]="newListName"
+    (blur)="saveList()"
+    (keydown.enter)="saveList()"
+    type="text"
+    placeholder="Digite o nome da lista..."
+    autofocus
+  />
   } @else {
-    <h2 class="text-2xl font-semibold text-gray-700">
-      {{ list.name }}
-    </h2>
+  <h2 class="text-2xl font-semibold text-gray-700">
+    {{ list.name }}
+  </h2>
 
-    <button
-      class="bg-wtwViolet text-white px-4 py-2 rounded-lg shadow hover:bg-purple-900 transition"
-      (click)="openDrawer()"
-    >
-      Adicionar item
-    </button>
+  <button
+    class="bg-wtwViolet text-white px-4 py-2 rounded-lg shadow hover:bg-purple-900 transition"
+    (click)="openDrawer()"
+  >
+    Adicionar item
+  </button>
   }
-
 </div>
 
-<div class="grid grid-cols-3 gap-6">
+@if (columns.length) {
+<div class="grid grid-cols-3 gap-6" cdkDropListGroup>
+  @for (col of columns; let i = $index; track col.id) {
+  <div class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col">
+    <h3 class="text-lg font-semibold mb-3 text-center">
+      {{ col.title }}
+    </h3>
 
-  @for (col of columns; track col) {
     <div
-      class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col"
+      class="space-y-2 min-h-[200px]"
       cdkDropList
       [cdkDropListData]="col.items"
       (cdkDropListDropped)="drop($event)"
     >
-      <h3 class="text-lg font-semibold mb-3 text-center">
-        {{ col.title }}
-      </h3>
+      @for (item of col.items; track trackByItemId($index, item)) {
+      <div
+        class="bg-white border rounded-lg p-3 shadow-sm cursor-grab hover:shadow-md transition relative"
+        cdkDrag
+      >
+        <button
+          class="absolute top-2 right-2 text-gray-400 hover:text-red-600 transition"
+          (click)="deleteItem(item, col.id)"
+          title="Excluir item"
+        >
+          🗑️
+        </button>
 
-      <div class="space-y-2 min-h-[200px]">
+        <div class="font-medium pr-6">
+          {{ item.name }}
+        </div>
 
-        @for (item of col.items; track item) {
-          <div
-            class="bg-white border rounded-lg p-3 shadow-sm cursor-grab hover:shadow-md transition"
-            cdkDrag
-            [cdkDragData]="item"
-          >
-            {{ item.name }}
-          </div>
+        @if (item.description) {
+        <div class="text-sm text-gray-600 mt-1 line-clamp-2 pr-6">
+          {{ item.description }}
+        </div>
+        } @if (item.dueDate) {
+        <div class="text-xs text-gray-500 mt-2 flex items-center gap-1 pr-6">
+          <span>📅</span>
+          <span>{{ item.dueDate | date : 'dd/MM/yyyy' }}</span>
+        </div>
         }
-
       </div>
+      }
     </div>
+  </div>
   }
-
 </div>
-
-@if (drawerOpen) {
-  <app-item-drawer
-    [listId]="list?.id"
-    (close)="closeDrawer()"
-    (save)="handleItemSave($event)">
-  </app-item-drawer>
+} @if (drawerOpen) {
+<app-item-drawer [listId]="list?.id" (close)="closeDrawer()" (save)="handleItemSave($event)">
+</app-item-drawer>
 }

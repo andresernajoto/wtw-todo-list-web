@@ -1,8 +1,9 @@
-import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { List } from '../../core/models/list';
 import { ListService } from '../../core/services/list.service';
 import { listModule } from './list.module';
+import { ListSidebarComponent } from './sidebar/list-sidebar';
 
 @Component({
   standalone: true,
@@ -11,6 +12,8 @@ import { listModule } from './list.module';
   imports: [listModule],
 })
 export class ListComponent implements OnInit {
+  @ViewChild(ListSidebarComponent) listSidebar?: ListSidebarComponent;
+  
   selectedList?: List;
   creatingList = false;
 
@@ -47,6 +50,8 @@ export class ListComponent implements OnInit {
   onListCreated(newList: List) {
     this.selectedList = newList;
     this.creatingList = false;
+
+    this.listSidebar?.addList(newList);
   }
 
   getListById(listId: number) {

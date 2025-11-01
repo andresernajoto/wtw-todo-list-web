@@ -1,43 +1,53 @@
 import {
+  CdkDrag,
   CdkDragDrop,
-  DragDropModule,
+  CdkDropList,
+  CdkDropListGroup,
   moveItemInArray,
   transferArrayItem,
 } from '@angular/cdk/drag-drop';
 import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
+import {
+  Component,
+  EventEmitter,
+  Input,
+  OnChanges,
+  OnInit,
+  Output,
+  SimpleChanges,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { ToastrService } from 'ngx-toastr';
 import { Column } from '../../../core/models/column';
 import { Item } from '../../../core/models/item';
 import { List } from '../../../core/models/list';
-import { ListService } from '../../../core/services/list.service';
-import { ItemDrawerComponent } from '../../item/drawer/item-drawer';
 import { ItemService } from '../../../core/services/item.service';
-import { ToastrService } from 'ngx-toastr';
+import { ListService } from '../../../core/services/list.service';
 import { ITEM_STATUS_ENUM } from '../../../shared/enums/ItemStatusEnum';
+import { ItemDrawerComponent } from '../../item/drawer/item-drawer';
 
 @Component({
   standalone: true,
   selector: 'app-list-board',
   templateUrl: './list-board.html',
-  imports: [CommonModule, ItemDrawerComponent, DragDropModule, FormsModule],
+  imports: [CommonModule, ItemDrawerComponent, CdkDropListGroup, CdkDropList, CdkDrag, FormsModule],
 })
-export class ListBoardComponent implements OnInit {
+export class ListBoardComponent implements OnInit, OnChanges {
   @Input() list?: List;
   @Output() listCreated = new EventEmitter<List>();
 
   newListName = '';
   itemStatusEnum = ITEM_STATUS_ENUM;
-  
+
   drawerOpen = false;
   creatingList = false;
   isLoading: boolean = false;
 
   columns: Column[] = [
-    { title: 'Criado', items: [] },
-    { title: 'Em Andamento', items: [] },
-    { title: 'Concluído', items: [] },
+    { id: '1', title: 'Criado', items: [] },
+    { id: '2', title: 'Em Andamento', items: [] },
+    { id: '3', title: 'Concluído', items: [] },
   ];
 
   constructor(
@@ -50,9 +60,17 @@ export class ListBoardComponent implements OnInit {
   ngOnInit() {
     if (!this.list) {
       this.creatingList = true;
+      return;
     }
 
-    this.getItemsFromList(this.list?.id!);
+    this.getItemsFromList(this.list.id);
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    if (changes['list'] && this.list?.id) {
+      this.creatingList = false;
+      this.getItemsFromList(this.list.id);
+    }
   }
 
   saveList() {
@@ -87,8 +105,8 @@ export class ListBoardComponent implements OnInit {
   handleItemSave(item: Item) {
     this.isLoading = true;
 
-    this._itemService.create(item).subscribe(() => {
-      this.columns[0].items.push(item);
+    this._itemService.create(item).subscribe((createdItem) => {
+      this.columns[0].items.push(createdItem);
       this.closeDrawer();
 
       this._toastrService.success('Tarefa vinculada à lista');
@@ -109,7 +127,9 @@ export class ListBoardComponent implements OnInit {
     }
   }
 
-  getItemsFromList(listId: number) {
+  getItemsFromList(listId?: number) {
+    if (!listId) return;
+
     this.isLoading = true;
 
     this._itemService.getAllFromList(listId).subscribe({
@@ -125,9 +145,31 @@ export class ListBoardComponent implements OnInit {
 
         this.isLoading = false;
       },
-      error: () => {
-        this._toastrService.error('Falha ao obter tarefas da lista');
+      error: (err) => {
+        if (listId && err.status !== 404) {
+          this._toastrService.error('Falha ao obter tarefas da lista');
+        }
+
+        this.columns.forEach((column) => (column.items = []));
         this.isLoading = false;
+      },
+    });
+  }
+
+  deleteItem(item: Item, columnId: string) {
+    if (!confirm(`Deseja realmente excluir o item "${item.name}"?`)) return;
+
+    this._itemService.delete(item.id).subscribe({
+      next: () => {
+        const column = this.columns.find((c) => c.id === columnId);
+        if (column) {
+          column.items = column.items.filter((i) => i.id !== item.id);
+        }
+
+        this._toastrService.success('Item excluído com sucesso!');
+      },
+      error: () => {
+        this._toastrService.error('Erro ao excluir item.');
       },
     });
   }
@@ -143,5 +185,9 @@ export class ListBoardComponent implements OnInit {
       default:
         return 0;
     }
+  }
+
+  trackByItemId(index: number, item: Item): number {
+    return item.id || index;
   }
 }

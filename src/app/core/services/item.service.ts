@@ -18,7 +18,11 @@ export class ItemService {
     return this.http.get<Item>(`${this.apiUrl}/${id}`);
   }
 
-  create(item: Item): Observable<void> {
-    return this.http.post<void>(this.apiUrl, item);
+  create(item: Item): Observable<Item> {
+    return this.http.post<Item>(this.apiUrl, item);
+  }
+
+  delete(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 }
