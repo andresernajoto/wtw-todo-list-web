@@ -1,0 +1,23 @@
+<div class="flex flex-col h-full">
+  <div class="p-4 border-b border-white flex justify-center">
+    <button
+      class="w-40 bg-white text-black py-2 rounded hover:bg-gray-300 transition"
+      (click)="createList.emit()"
+    >
+      Nova lista
+    </button>
+  </div>
+
+  <div class="flex-1 overflow-y-auto p-2 space-y-2">
+
+    @for (list of lists; track list.id) {
+      <div
+        (click)="onSelect(list)"
+        class="cursor-pointer px-4 py-2 rounded hover:bg-white hover:text-black transition text-center"
+      >
+        {{ list.name }}
+      </div>
+    }
+
+  </div>
+</div>

@@ -1,0 +1,46 @@
+<div class="flex items-center justify-between mb-6">
+  <h2 class="text-2xl font-semibold text-gray-700">{{ list.name }}</h2>
+
+  <button
+    class="bg-wtwViolet text-white px-4 py-2 rounded-lg shadow hover:bg-purple-900 transition"
+    (click)="openDrawer()"
+  >
+    Adicionar item
+  </button>
+</div>
+
+<div class="grid grid-cols-3 gap-6">
+
+  @for (col of columns; track col) {
+    <div
+      class="bg-gray-50 border border-gray-200 rounded-xl p-4 shadow-sm flex flex-col"
+      cdkDropList
+      [cdkDropListData]="col.items"
+      (cdkDropListDropped)="drop($event)"
+    >
+      <h3 class="text-lg font-semibold mb-3 text-center">{{ col.title }}</h3>
+
+      <div class="space-y-2 min-h-[200px]">
+
+        @for (item of col.items; track item) {
+          <div
+            class="bg-white border rounded-lg p-3 shadow-sm cursor-grab hover:shadow-md transition"
+            cdkDrag
+            [cdkDragData]="item"
+          >
+            {{ item.name }}
+          </div>
+        }
+
+      </div>
+    </div>
+  }
+
+</div>
+
+@if (drawerOpen) {
+  <app-item-drawer
+    (close)="closeDrawer()"
+    (save)="handleItemSave($event)">
+  </app-item-drawer>
+}

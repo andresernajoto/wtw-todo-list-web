@@ -1,1 +1,17 @@
-<router-outlet></router-outlet>
+<div class="flex h-screen">
+  <app-list-sidebar
+    class="w-64 bg-purple-800 text-white"
+    (createList)="onCreateListClick()"
+    (selectList)="onListSelected($event)"
+  ></app-list-sidebar>
+
+  <div class="flex-1 bg-gray-100 p-6 overflow-auto">
+    @if (!showForm && selectedList) {
+    <app-list-board [list]="selectedList"></app-list-board>
+    } @if (!showForm && !selectedList) {
+    <div class="text-gray-500 text-center mt-20">
+      Selecione uma lista ou crie uma nova para começar.
+    </div>
+    }
+  </div>
+</div>

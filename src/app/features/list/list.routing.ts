@@ -1,6 +1,5 @@
 import { Routes } from "@angular/router";
 import { ListComponent } from "./list";
-import { ListListComponent } from "./list-list/list-list";
 
 export default [
   {
@@ -9,7 +8,7 @@ export default [
     children: [
       {
         path: '',
-        component: ListListComponent
+        component: ListComponent
       }
     ]
   }

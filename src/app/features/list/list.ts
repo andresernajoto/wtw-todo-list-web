@@ -1,20 +1,32 @@
-import { CommonModule } from "@angular/common";
-import { Component, OnDestroy, OnInit } from "@angular/core";
-import { RouterModule } from "@angular/router";
-import { Subject } from "rxjs";
+import { Component } from "@angular/core";
+import { listModule } from "./list.module";
+import { List } from "../../core/models/list";
 
 @Component({
   standalone: true,
   selector: 'app-list',
   templateUrl: './list.html',
-  imports: [CommonModule, RouterModule]
+  imports: [listModule],
 })
-export class ListComponent implements OnInit, OnDestroy {
-  private _subject: Subject<any> = new Subject<any>();
+export class ListComponent {
+  showForm = false;
+  selectedList: List | null = null;
 
-  ngOnInit(): void { }
+  onCreateListClick() {
+    this.showForm = true;
+    this.selectedList = null;
+  }
 
-  ngOnDestroy(): void {
-    this._subject.unsubscribe();
+  onListCreated(newList: List) {
+    this.showForm = false;
+  }
+
+  onListSelected(list: List) {
+    this.selectedList = list;
+    this.showForm = false;
+  }
+
+  onCancelCreate() {
+    this.showForm = false;
   }
 }
