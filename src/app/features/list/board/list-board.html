@@ -1,12 +1,28 @@
 <div class="flex items-center justify-between mb-6">
-  <h2 class="text-2xl font-semibold text-gray-700">{{ list.name }}</h2>
 
-  <button
-    class="bg-wtwViolet text-white px-4 py-2 rounded-lg shadow hover:bg-purple-900 transition"
-    (click)="openDrawer()"
-  >
-    Adicionar item
-  </button>
+  @if (creatingList || !list) {
+    <input
+      class="text-2xl font-semibold text-gray-700 border-b border-gray-400 outline-none w-full bg-transparent focus:border-purple-600"
+      [(ngModel)]="newListName"
+      (blur)="saveList()"
+      (keydown.enter)="saveList()"
+      type="text"
+      placeholder="Digite o nome da lista..."
+      autofocus
+    />
+  } @else {
+    <h2 class="text-2xl font-semibold text-gray-700">
+      {{ list.name }}
+    </h2>
+
+    <button
+      class="bg-wtwViolet text-white px-4 py-2 rounded-lg shadow hover:bg-purple-900 transition"
+      (click)="openDrawer()"
+    >
+      Adicionar item
+    </button>
+  }
+
 </div>
 
 <div class="grid grid-cols-3 gap-6">
@@ -18,7 +34,9 @@
       [cdkDropListData]="col.items"
       (cdkDropListDropped)="drop($event)"
     >
-      <h3 class="text-lg font-semibold mb-3 text-center">{{ col.title }}</h3>
+      <h3 class="text-lg font-semibold mb-3 text-center">
+        {{ col.title }}
+      </h3>
 
       <div class="space-y-2 min-h-[200px]">
 

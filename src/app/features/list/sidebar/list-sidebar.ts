@@ -26,4 +26,8 @@ export class ListSidebarComponent {
   onSelect(list: List) {
     this.selectList.emit(list);
   }
+
+  onCreateList() {
+    this.createList.emit();
+  }
 }

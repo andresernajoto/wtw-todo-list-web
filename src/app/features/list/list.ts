@@ -1,6 +1,8 @@
-import { Component } from "@angular/core";
-import { listModule } from "./list.module";
-import { List } from "../../core/models/list";
+import { ChangeDetectorRef, Component, OnInit } from '@angular/core';
+import { listModule } from './list.module';
+import { List } from '../../core/models/list';
+import { ActivatedRoute } from '@angular/router';
+import { ListService } from '../../core/services/list.service';
 
 @Component({
   standalone: true,
@@ -8,25 +10,51 @@ import { List } from "../../core/models/list";
   templateUrl: './list.html',
   imports: [listModule],
 })
-export class ListComponent {
-  showForm = false;
-  selectedList: List | null = null;
+export class ListComponent implements OnInit {
+  selectedList?: List;
+  creatingList = false;
 
-  onCreateListClick() {
-    this.showForm = true;
-    this.selectedList = null;
-  }
+  constructor(
+    private _activatedRoute: ActivatedRoute,
+    private _listService: ListService,
+    private _cd: ChangeDetectorRef
+  ) {}
 
-  onListCreated(newList: List) {
-    this.showForm = false;
-  }
+  ngOnInit(): void {
+  this._activatedRoute.paramMap.subscribe(params => {
+    const listId = Number(params.get('id'));
+    console.log(listId)
+    
+    if (listId) {
+      this.getListById(listId);
+    } else {
+      this.selectedList = undefined;
+      this.creatingList = false;
+    }
+  });
+}
 
   onListSelected(list: List) {
     this.selectedList = list;
-    this.showForm = false;
+    this.creatingList = false;
   }
 
-  onCancelCreate() {
-    this.showForm = false;
+  onCreateListClick() {
+    this.selectedList = undefined;
+    this.creatingList = true;
+  }
+
+  onListCreated(newList: List) {
+    this.selectedList = newList;
+    this.creatingList = false;
+  }
+
+  getListById(listId: number) {
+    this._listService.getById(listId).subscribe((newList) => {
+      this.selectedList = newList;
+      this.creatingList = false;
+
+      this._cd.detectChanges();
+    });
   }
 }

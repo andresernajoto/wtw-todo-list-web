@@ -2,7 +2,7 @@
   <div class="p-4 border-b border-white flex justify-center">
     <button
       class="w-40 bg-white text-black py-2 rounded hover:bg-gray-300 transition"
-      (click)="createList.emit()"
+      (click)="onCreateList()"
     >
       Nova lista
     </button>
@@ -12,8 +12,8 @@
 
     @for (list of lists; track list.id) {
       <div
-        (click)="onSelect(list)"
         class="cursor-pointer px-4 py-2 rounded hover:bg-white hover:text-black transition text-center"
+        (click)="onSelect(list)"
       >
         {{ list.name }}
       </div>

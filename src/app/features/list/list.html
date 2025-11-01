@@ -6,12 +6,24 @@
   ></app-list-sidebar>
 
   <div class="flex-1 bg-gray-100 p-6 overflow-auto">
-    @if (!showForm && selectedList) {
-    <app-list-board [list]="selectedList"></app-list-board>
-    } @if (!showForm && !selectedList) {
-    <div class="text-gray-500 text-center mt-20">
-      Selecione uma lista ou crie uma nova para começar.
-    </div>
+    
+    @if (creatingList) {
+      <app-list-board
+        (listCreated)="onListCreated($event)"
+      ></app-list-board>
     }
+
+    @if (!creatingList && selectedList) {
+      <app-list-board
+        [list]="selectedList"
+      ></app-list-board>
+    }
+
+    @if (!creatingList && !selectedList) {
+      <div class="text-gray-500 text-center mt-20">
+        Selecione uma lista ou crie uma nova para começar.
+      </div>
+    }
+
   </div>
 </div>

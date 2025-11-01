@@ -18,8 +18,10 @@ export class ListService {
     return this.http.get<List>(`${this.apiUrl}/${id}`);
   }
 
-  create(list: List): Observable<void> {
-    return this.http.post<void>(this.apiUrl, list);
+  create(listName: string): Observable<List> {
+    const payload = { name: listName };
+
+    return this.http.post<List>(this.apiUrl, payload);
   }
 
   update(id: number, list: List): Observable<void> {
