@@ -58,6 +58,7 @@
 
 @if (drawerOpen) {
   <app-item-drawer
+    [listId]="list?.id"
     (close)="closeDrawer()"
     (save)="handleItemSave($event)">
   </app-item-drawer>

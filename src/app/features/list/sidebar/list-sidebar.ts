@@ -14,13 +14,22 @@ export class ListSidebarComponent {
   @Output() selectList = new EventEmitter<List>();
 
   lists: List[] = [];
+  maxList: number = 5;
+  canShowCreateButton: boolean = true;
 
   constructor(private _listService: ListService) {
     this.loadLists();
   }
 
   loadLists() {
-    this._listService.getAll().subscribe((res) => (this.lists = res));
+    this._listService
+      .getAll()
+      .subscribe((res) => {
+        if (res.length >= this.maxList)
+          this.canShowCreateButton = false;
+
+        this.lists = res;
+      });
   }
 
   onSelect(list: List) {

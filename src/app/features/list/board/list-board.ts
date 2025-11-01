@@ -13,6 +13,9 @@ import { Item } from '../../../core/models/item';
 import { List } from '../../../core/models/list';
 import { ListService } from '../../../core/services/list.service';
 import { ItemDrawerComponent } from '../../item/drawer/item-drawer';
+import { ItemService } from '../../../core/services/item.service';
+import { ToastrService } from 'ngx-toastr';
+import { ITEM_STATUS_ENUM } from '../../../shared/enums/ItemStatusEnum';
 
 @Component({
   standalone: true,
@@ -24,9 +27,12 @@ export class ListBoardComponent implements OnInit {
   @Input() list?: List;
   @Output() listCreated = new EventEmitter<List>();
 
-  creatingList = false;
   newListName = '';
+  itemStatusEnum = ITEM_STATUS_ENUM;
+  
   drawerOpen = false;
+  creatingList = false;
+  isLoading: boolean = false;
 
   columns: Column[] = [
     { title: 'Criado', items: [] },
@@ -36,13 +42,17 @@ export class ListBoardComponent implements OnInit {
 
   constructor(
     private _listService: ListService,
-    private _router: Router
+    private _itemService: ItemService,
+    private _router: Router,
+    private _toastrService: ToastrService
   ) {}
 
   ngOnInit() {
     if (!this.list) {
       this.creatingList = true;
     }
+
+    this.getItemsFromList(this.list?.id!);
   }
 
   saveList() {
@@ -57,10 +67,16 @@ export class ListBoardComponent implements OnInit {
 
       this._router.navigate(['/listas', newList.id]);
       this.listCreated.emit(this.list);
+
+      this._toastrService.success('Lista criada com sucesso!');
     });
   }
 
   openDrawer() {
+    if (!this.list?.id) {
+      return;
+    }
+
     this.drawerOpen = true;
   }
 
@@ -69,8 +85,15 @@ export class ListBoardComponent implements OnInit {
   }
 
   handleItemSave(item: Item) {
-    this.columns[0].items.push(item);
-    this.closeDrawer();
+    this.isLoading = true;
+
+    this._itemService.create(item).subscribe(() => {
+      this.columns[0].items.push(item);
+      this.closeDrawer();
+
+      this._toastrService.success('Tarefa vinculada à lista');
+      this.isLoading = false;
+    });
   }
 
   drop(event: CdkDragDrop<Item[]>) {
@@ -83,6 +106,42 @@ export class ListBoardComponent implements OnInit {
         event.previousIndex,
         event.currentIndex
       );
+    }
+  }
+
+  getItemsFromList(listId: number) {
+    this.isLoading = true;
+
+    this._itemService.getAllFromList(listId).subscribe({
+      next: (items: Item[]) => {
+        this.columns.forEach((column) => (column.items = []));
+
+        items.forEach((item) => {
+          const columnIndex = this.getColumnIndexByStatus(item.statusId);
+          if (columnIndex !== -1) {
+            this.columns[columnIndex].items.push(item);
+          }
+        });
+
+        this.isLoading = false;
+      },
+      error: () => {
+        this._toastrService.error('Falha ao obter tarefas da lista');
+        this.isLoading = false;
+      },
+    });
+  }
+
+  private getColumnIndexByStatus(status: ITEM_STATUS_ENUM): number {
+    switch (status) {
+      case ITEM_STATUS_ENUM.Criado:
+        return 0;
+      case ITEM_STATUS_ENUM.EmAndamento:
+        return 1;
+      case ITEM_STATUS_ENUM.Concluido:
+        return 2;
+      default:
+        return 0;
     }
   }
 }
