@@ -15,7 +15,7 @@
   </h2>
 
   <button
-    class="bg-wtwViolet text-white px-4 py-2 rounded-lg shadow hover:bg-purple-900 transition"
+    class="bg-wtwViolet text-white px-4 py-2 rounded-lg shadow hover:bg-purple-900"
     (click)="openDrawer()"
   >
     Adicionar item
@@ -39,11 +39,11 @@
     >
       @for (item of col.items; track trackByItemId($index, item)) {
       <div
-        class="bg-white border rounded-lg p-3 shadow-sm cursor-grab hover:shadow-md transition relative"
+        class="bg-white border rounded-lg p-3 shadow-sm cursor-grab hover:shadow-md relative"
         cdkDrag
       >
         <button
-          class="absolute top-2 right-2 text-gray-400 hover:text-red-600 transition"
+          class="absolute top-2 right-2 text-gray-400 hover:text-red-600"
           (click)="deleteItem(item, col.id)"
           title="Excluir item"
         >
